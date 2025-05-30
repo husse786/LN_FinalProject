@@ -1,0 +1,34 @@
+{
+  "_id": "ObjectId", // Automatisch von MongoDB generiert
+  "name": "String", // Pflichtfeld: Name des Projekts
+  "beschreibung": "String", // Optionale, detailliertere Beschreibung
+  "status": "String", // Pflichtfeld: Aktueller Status des Projekts
+                      // (z.B. "Planung", "In Arbeit", "Angehalten", "Abgeschlossen", "Abgebrochen")
+  "prioritaet": "String", // Optional: Priorität des Projekts
+                          // (z.B. "Hoch", "Mittel", "Niedrig")
+  "startDatum": "Date", // Optional: Startdatum des Projekts
+  "endDatumGeplant": "Date", // Optional: Geplantes Enddatum des Projekts
+  "endDatumTatsaechlich": "Date", // Optional: Tatsächliches Enddatum (wenn abgeschlossen)
+  "erstelltAm": "Date", // Automatisch gesetzt: Datum der Erstellung des Eintrags
+  "zuletztBearbeitetAm": "Date" // Automatisch aktualisiert: Datum der letzten Bearbeitung
+}
+
+
+AUFGABE:
+
+{
+  "_id": "ObjectId", // Automatisch von MongoDB generiert
+  "titel": "String", // Pflichtfeld: Kurze Bezeichnung der Aufgabe
+  "beschreibung": "String", // Optionale, detailliertere Beschreibung der Aufgabe
+  "projektId": "ObjectId", // Pflichtfeld: Referenz zur _id des übergeordneten Projekts
+  "status": "String", // Pflichtfeld: Aktueller Status der Aufgabe
+                      // (z.B. "Offen", "In Bearbeitung", "Erledigt", "Blockiert", "Verworfen")
+  "prioritaet": "String", // Optional: Priorität der Aufgabe
+                          // (z.B. "Hoch", "Mittel", "Niedrig")
+  "faelligkeitsDatum": "Date", // Optional: Zieldatum für die Erledigung der Aufgabe
+  "erstelltAm": "Date", // Automatisch gesetzt: Datum der Erstellung des Eintrags
+  "zuletztBearbeitetAm": "Date", // Automatisch aktualisiert: Datum der letzten Bearbeitung
+  "erledigtAm": "Date", // Optional: Datum, an dem die Aufgabe auf "Erledigt" gesetzt wurde
+  "geschaetzterAufwandStunden": "Number", // Optional: Geschätzter Zeitaufwand in Stunden
+  "tatsaechlicherAufwandStunden": "Number" // Optional: Tatsächlich benötigter Zeitaufwand in Stunden
+}
