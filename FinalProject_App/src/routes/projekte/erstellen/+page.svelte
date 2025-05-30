@@ -3,7 +3,8 @@
   import { enhance } from '$app/forms'; // Für Progressive Enhancement.
 
   /** @type {import('./$types').PageData} */
-  export let data; // Bleibt für Konsistenz, wenn nicht direkt genutzt wird. 
+  // svelte-ignore export_let_unused
+    export let data; // Bleibt für Konsistenz, wenn nicht direkt genutzt wird. 
 
   /** @type {import('./$types').ActionData} */
   export let form; // Um Feedback von der Server-Action zu erhalten (z.B. Fehler, Erfolgsmeldungen)
@@ -96,21 +97,23 @@
     </div>
 
     <div class="mb-3">
-      <label class="form-label">Projekt-Icon auswählen (optional)</label>
-      <div class="d-flex flex-wrap">
-        {#each verfuegbareIcons as icon (icon.value)}
-          <div class="form-check me-3 mb-2">
-            <input class="form-check-input" type="radio" name="projektIcon" id="icon-{icon.value}" value={icon.value} bind:group={projekt.projektIcon}>
-            <label class="form-check-label" for="icon-{icon.value}">
-              <img src={icon.path} alt={icon.label} title={icon.label} style="width: 50px; height: auto; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;" class:selected={projekt.projektIcon === icon.value}>
-              <span class="visually-hidden">{icon.label}</span>
-            </label>
-          </div>
-        {/each}
-        {#if projekt.projektIcon}
-          <button type="button" class="btn btn-sm btn-outline-secondary align-self-center ms-2" on:click={() => projekt.projektIcon = ''}>Auswahl aufheben</button>
-        {/if}
-      </div>
+      <fieldset>
+        <legend class="form-label mb-2">Projekt-Icon auswählen (optional)</legend>
+        <div class="d-flex flex-wrap">
+          {#each verfuegbareIcons as icon (icon.value)}
+            <div class="form-check me-3 mb-2">
+              <input class="form-check-input" type="radio" name="projektIcon" id="icon-{icon.value}" value={icon.value} bind:group={projekt.projektIcon}>
+              <label class="form-check-label" for="icon-{icon.value}">
+                <img src={icon.path} alt={icon.label} title={icon.label} style="width: 50px; height: auto; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;" class:selected={projekt.projektIcon === icon.value}>
+                <span class="visually-hidden">{icon.label}</span>
+              </label>
+            </div>
+          {/each}
+          {#if projekt.projektIcon}
+            <button type="button" class="btn btn-sm btn-outline-secondary align-self-center ms-2" on:click={() => projekt.projektIcon = ''}>Auswahl aufheben</button>
+          {/if}
+        </div>
+      </fieldset>
     </div>
 
     <hr />
