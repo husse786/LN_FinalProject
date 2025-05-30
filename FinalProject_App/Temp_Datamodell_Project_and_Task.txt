@@ -1,16 +1,15 @@
 {
-  "_id": "ObjectId", // Automatisch von MongoDB generiert
-  "name": "String", // Pflichtfeld: Name des Projekts
-  "beschreibung": "String", // Optionale, detailliertere Beschreibung
-  "status": "String", // Pflichtfeld: Aktueller Status des Projekts
-                      // (z.B. "Planung", "In Arbeit", "Angehalten", "Abgeschlossen", "Abgebrochen")
-  "prioritaet": "String", // Optional: Priorität des Projekts
-                          // (z.B. "Hoch", "Mittel", "Niedrig")
-  "startDatum": "Date", // Optional: Startdatum des Projekts
-  "endDatumGeplant": "Date", // Optional: Geplantes Enddatum des Projekts
-  "endDatumTatsaechlich": "Date", // Optional: Tatsächliches Enddatum (wenn abgeschlossen)
-  "erstelltAm": "Date", // Automatisch gesetzt: Datum der Erstellung des Eintrags
-  "zuletztBearbeitetAm": "Date" // Automatisch aktualisiert: Datum der letzten Bearbeitung
+  "_id": "ObjectId",
+  "name": "String", // Pflichtfeld
+  "beschreibung": "String", // Optional
+  "status": "String", // Pflichtfeld (z.B. "Planung", "In Arbeit", ...)
+  "prioritaet": "String", // Optional (z.B. "Hoch", "Mittel", ...)
+  "startDatum": "Date", // Optional
+  "endDatumGeplant": "Date", // Optional
+  "endDatumTatsaechlich": "Date", // Optional
+  "projektIcon": "String", // NEU: Optional, speichert den Dateinamen des Icons (z.B. "icon_blau.png")
+  "erstelltAm": "Date", // Automatisch
+  "zuletztBearbeitetAm": "Date" // Automatisch
 }
 
 
