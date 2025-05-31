@@ -8,6 +8,8 @@
     let projekt = $derived(data?.projekt);
     let anzeigeFehler = $derived(data?.error);
 
+    let isDeleting = $state(false); // Für den Deaktivierungs-/Ladezustand des Buttons
+
     // Hilfsfunktionen für Datumsformatierung
     function formatiereDatum(datumString, fallback = "N/A") {
         if (!datumString) return fallback;
@@ -121,6 +123,34 @@
                         <a href="/projekte" class="btn btn-outline-secondary">
                             Zurück zur Übersicht
                         </a>
+
+                        <form method="POST" action="?/delete" use:enhance={() => {
+                            if (!confirm('Sind Sie sicher, dass Sie dieses Projekt endgültig löschen möchten? Zugehörige Aufgaben bleiben dabei bestehen und müssen bei Bedarf separat verwaltet werden (Option A).')) {
+                                return ({ cancel }) => {
+                                    cancel(); // Verhindert das Absenden des Formulars
+                                    isDeleting = false; // Setze Ladezustand zurück, falls er gesetzt wurde
+                                };
+                            }
+                            isDeleting = true; // Zeige Ladezustand / deaktiviere Button
+
+                            // Die 'update'-Funktion wird nach der Action-Ausführung aufgerufen.
+                            // Wenn die Action serverseitig weiterleitet (was unsere 'delete'-Action tut),
+                            // wird dieser Teil für den Erfolgsfall nicht unbedingt benötigt, aber
+                            // er ist gut für den Fall, dass die Action 'fail' zurückgibt.
+                            return async ({ update }) => {
+                                await update(); // Aktualisiert die 'form'-Prop, falls die Action 'fail' zurückgibt
+                                isDeleting = false; // Setze Ladezustand zurück (wichtig bei Fehler)
+                            };
+                        }}>
+                            <button type="submit" class="btn btn-danger w-100 mt-3" disabled={isDeleting}>
+                                {#if isDeleting}
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Wird gelöscht...
+                                {:else}
+                                    Projekt endgültig löschen
+                                {/if}
+                            </button>
+                        </form>
                         </div>
                 </div>
             </div>

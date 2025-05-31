@@ -1,7 +1,7 @@
 // src/routes/projekte/[projektId]/+page.server.js
 
 import db from '$lib/server/db.js'; // Unser Datenbank-Service-Objekt
-import { error } from '@sveltejs/kit'; // SvelteKit's error helper für 404 etc.
+import { fail, redirect, error } from '@sveltejs/kit'; // SvelteKit's error helper für 404 etc.
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params }) {
@@ -42,3 +42,41 @@ export async function load({ params }) {
         throw error(500, { message: `Ein interner Fehler ist aufgetreten beim Laden des Projekts: ${err.message}` });
     }
 }
+
+// In src/routes/projekte/[projektId]/+page.server.js
+
+
+export const actions = {
+  /**
+   * Action zum Löschen eines Projekts.
+   * Zugehörige Aufgaben werden NICHT mitgelöscht (Option A).
+   * Wird aufgerufen, wenn ein Formular mit action="?/delete" abgeschickt wird.
+   */
+  delete: async ({ params }) => {
+    const projektId = params.projektId;
+    console.log(`Delete-Action für Projekt-ID ${projektId} aufgerufen (Option A).`);
+
+    if (!projektId) {
+      return fail(400, { message: 'Projekt-ID zum Löschen fehlt.' });
+    }
+
+    try {
+      const deleteResult = await db.deleteProjekt(projektId); // Ruft Ihre bestehende Funktion auf
+
+      if (deleteResult.deletedCount === 0) {
+        // Dies könnte bedeuten, dass das Projekt bereits von jemand anderem gelöscht wurde
+        // oder die ID ungültig war und die DB-Funktion dies so signalisiert.
+        return fail(404, { message: 'Projekt zum Löschen nicht gefunden.' });
+      }
+
+      console.log(`Projekt ${projektId} erfolgreich gelöscht.`);
+
+    } catch (error) {
+      console.error(`Fehler in Delete-Action für Projekt ${projektId}:`, error);
+      return fail(500, { message: error.message || 'Fehler beim Löschen des Projekts.' });
+    }
+
+    // Nach erfolgreichem Löschen zur Projektübersicht weiterleiten.
+    throw redirect(303, '/projekte');
+  }
+};

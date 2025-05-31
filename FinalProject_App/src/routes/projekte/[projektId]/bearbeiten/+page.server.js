@@ -1,7 +1,7 @@
 // src/routes/projekte/[projektId]/bearbeiten/+page.server.js
 
 import db from '$lib/server/db.js';
-import { error } from '@sveltejs/kit';
+import { fail, redirect, error } from '@sveltejs/kit';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params }) {
