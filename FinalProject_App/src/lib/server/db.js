@@ -116,11 +116,56 @@ async function getProjektById(id) {
   }
 }
 
+/**
+ * Aktualisiert ein bestehendes Projekt in der Datenbank.
+ * @param {string} id - Die ID des zu aktualisierenden Projekts (als String).
+ * @param {object} projektUpdateDaten - Ein Objekt mit den Feldern, die aktualisiert werden sollen.
+ * @returns {Promise<import('mongodb').UpdateResult>} Ein Promise, das das Ergebnis der Update-Operation zurückgibt.
+ */
+async function updateProjekt(id, projektUpdateDaten) {
+  if (!id) {
+    console.warn('updateProjekt aufgerufen ohne ID.');
+    throw new Error('Projekt-ID für Update fehlt.');
+  }
+  try {
+    const datenbank = await connectToDatabase();
+
+    // Das 'zuletztBearbeitetAm'-Datum setzen/aktualisieren
+    const datenMitTimestamp = {
+      ...projektUpdateDaten,
+      zuletztBearbeitetAm: new Date()
+    };
+
+    // Felder, die nicht aktualisiert werden sollen (z.B. erstelltAm), sollten nicht in projektUpdateDaten sein
+
+    const result = await datenbank.collection('projekte').updateOne(
+      { _id: new ObjectId(id) },      // Filter: Welches Dokument soll aktualisiert werden?
+      { $set: datenMitTimestamp }
+    );
+
+    if (result.matchedCount === 0) {
+      console.warn(`Kein Projekt mit ID ${id} für Update gefunden.`);
+      // Entweder null zurückgeben oder einen Fehler werfen, den die Action behandeln kann
+      throw new Error(`Projekt mit ID ${id} nicht gefunden für Update.`);
+    }
+
+    console.log(`Projekt mit ID ${id} erfolgreich aktualisiert. Modifizierte Dokumente: ${result.modifiedCount}`);
+    return result;
+  } catch (error) {
+    console.error(`Fehler beim Aktualisieren des Projekts mit ID ${id}:`, error);
+    // Den ursprünglichen Fehler weiterwerfen oder einen spezifischeren Fehler erstellen
+    if (error.message.startsWith('Projekt mit ID')) throw error; // Eigenen Fehler weiterleiten
+    throw new Error(`Konnte Projekt mit ID ${id} nicht in der Datenbank aktualisieren.`);
+  }
+}
+
+
 // Objekt, das alle unsere Datenzugriffsfunktionen bündelt
 const dbExportObjekt = {
     getAlleProjekte: getAlleProjekte,
     addProjekt: addProjekt,
     getProjektById: getProjektById,
+    updateProjekt: updateProjekt,
 };
 
 export default dbExportObjekt; // Default Export dieses Objekts
