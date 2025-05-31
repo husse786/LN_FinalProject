@@ -189,6 +189,91 @@ async function deleteProjekt(id) {
     }
 }
 
+// In src/lib/server/db.js
+// ... (vorheriger Code für connectToDatabase und Projekt-Funktionen) ...
+
+/**
+ * Ruft alle Aufgaben für eine gegebene Projekt-ID ab.
+ * @param {string} projektId - Die ID des Projekts.
+ * @returns {Promise<Array>} Ein Promise, das ein Array mit den Aufgabendokumenten zurückgibt.
+ */
+async function getAufgabenFuerProjekt(projektId) {
+  if (!projektId) {
+    console.warn('getAufgabenFuerProjekt aufgerufen ohne projektId.');
+    return []; // Leeres Array zurückgeben, wenn keine ID vorhanden ist
+  }
+  try {
+    const datenbank = await connectToDatabase();
+    const aufgaben = await datenbank.collection('aufgaben')
+      .find({ projektId: new ObjectId(projektId) }) // Filtern nach projektId
+      .sort({ erstelltAm: -1 }) // Optional: Neueste Aufgaben zuerst
+      .toArray();
+
+    return aufgaben.map(aufgabe => ({
+      ...aufgabe,
+      _id: aufgabe._id.toString(),
+      projektId: aufgabe.projektId.toString() // Sicherstellen, dass auch diese ID ein String ist
+    }));
+  } catch (error) {
+    console.error(`Fehler beim Abrufen der Aufgaben für Projekt ${projektId}:`, error);
+    throw new Error(`Konnte Aufgaben für Projekt ${projektId} nicht laden.`);
+  }
+}
+
+/**
+ * Fügt eine neue Aufgabe zur Datenbank hinzu.
+ * @param {object} aufgabenDaten - Enthält die Daten der neuen Aufgabe, inklusive projektId.
+ * @returns {Promise<import('mongodb').InsertOneResult>}
+ */
+async function addAufgabe(aufgabenDaten) {
+  if (!aufgabenDaten.projektId) {
+    throw new Error('projektId ist erforderlich, um eine Aufgabe hinzuzufügen.');
+  }
+  try {
+    const datenbank = await connectToDatabase();
+    const neueAufgabe = {
+      ...aufgabenDaten,
+      // projektId sollte bereits als ObjectId von der Action übergeben werden oder hier konvertiert werden
+      projektId: new ObjectId(aufgabenDaten.projektId), 
+      erstelltAm: new Date(),
+      zuletztBearbeitetAm: new Date(),
+      status: aufgabenDaten.status || 'Offen' // Standardstatus, falls nicht anders angegeben
+    };
+    const result = await datenbank.collection('aufgaben').insertOne(neueAufgabe);
+    console.log(`Neue Aufgabe erfolgreich hinzugefügt mit ID: ${result.insertedId} für Projekt ${aufgabenDaten.projektId}`);
+    return result;
+  } catch (error) {
+    console.error('Fehler beim Hinzufügen der Aufgabe:', error);
+    throw new Error('Konnte neue Aufgabe nicht in der Datenbank speichern.');
+  }
+}
+
+/**
+ * Löscht eine Aufgabe anhand ihrer ID aus der Datenbank.
+ * @param {string} aufgabenId - Die ID der zu löschenden Aufgabe.
+ * @returns {Promise<import('mongodb').DeleteResult>}
+ */
+async function deleteAufgabe(aufgabenId) {
+  if (!aufgabenId) {
+    console.warn('deleteAufgabe aufgerufen ohne aufgabenId.');
+    throw new Error('Aufgaben-ID für Löschvorgang fehlt.');
+  }
+  try {
+    const datenbank = await connectToDatabase();
+    const result = await datenbank.collection('aufgaben').deleteOne({ _id: new ObjectId(aufgabenId) });
+
+    if (result.deletedCount === 0) {
+      console.warn(`Keine Aufgabe mit ID ${aufgabenId} zum Löschen gefunden.`);
+      // throw new Error(`Aufgabe mit ID ${aufgabenId} nicht gefunden zum Löschen.`);
+    } else {
+      console.log(`Aufgabe mit ID ${aufgabenId} erfolgreich gelöscht.`);
+    }
+    return result;
+  } catch (error) {
+    console.error(`Fehler beim Löschen der Aufgabe mit ID ${aufgabenId}:`, error);
+    throw new Error(`Konnte Aufgabe mit ID ${aufgabenId} nicht löschen.`);
+  }
+}
 
 // Objekt, das alle unsere Datenzugriffsfunktionen bündelt
 const dbExportObjekt = {
@@ -197,6 +282,10 @@ const dbExportObjekt = {
     getProjektById: getProjektById,
     updateProjekt: updateProjekt,
     deleteProjekt: deleteProjekt,
+    // Aufgabe-funktionen
+    getAufgabenFuerProjekt: getAufgabenFuerProjekt,
+    addAufgabe: addAufgabe,
+    deleteAufgabe: deleteAufgabe,
 };
 
 export default dbExportObjekt; // Default Export dieses Objekts

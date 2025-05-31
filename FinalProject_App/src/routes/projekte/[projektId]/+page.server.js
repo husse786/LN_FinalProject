@@ -25,10 +25,16 @@ export async function load({ params }) {
             throw error(404, { message: 'Projekt nicht gefunden' });
         }
 
+        // Lade die dazugehörige Aufgaben für dieses Projekt
+
+        const aufgaben = await db.getAufgabenFuerProjekt(projektId);
+        console.log(`${aufgaben.length} Aufgaben für Projekt ${projektId} geladen.`);
+
         // Das gefundene Projekt wird an die +page.svelte Komponente übergeben
         // und ist dort via 'data.projekt' verfügbar.
         return {
-            projekt: projekt
+            projekt: projekt,
+            aufgaben: aufgaben
         };
 
     } catch (err) {
@@ -78,5 +84,38 @@ export const actions = {
 
     // Nach erfolgreichem Löschen zur Projektübersicht weiterleiten.
     throw redirect(303, '/projekte');
+  },
+
+   // ACTION: deleteAufgabe
+
+  deleteAufgabe: async ({ request, params }) => {
+    const formData = await request.formData();
+    const aufgabenId = formData.get('aufgabenId')?.toString();
+    const projektId = params.projektId; // Die ID des aktuellen Projekts aus der URL
+
+    console.log(`Action deleteAufgabe aufgerufen für Aufgabe ${aufgabenId} in Projekt ${projektId}`);
+
+    if (!aufgabenId) {
+      return fail(400, { deleteAufgabeError: true, message: 'Aufgaben-ID zum Löschen fehlt.' });
+    }
+
+    try {
+      const result = await db.deleteAufgabe(aufgabenId);
+
+      if (result.deletedCount === 0) {
+        return fail(404, { deleteAufgabeError: true, message: 'Aufgabe zum Löschen nicht gefunden.' });
+      }
+
+      console.log(`Aufgabe ${aufgabenId} erfolgreich gelöscht.`);
+      // Kein Pop-up hier, da die Seite direkt neu geladen wird durch den Redirect.
+
+    } catch (error) {
+      console.error(`Fehler beim Löschen der Aufgabe ${aufgabenId}:`, error);
+      return fail(500, { deleteAufgabeError: true, message: error.message || 'Fehler beim Löschen der Aufgabe.' });
+    }
+    // weiterleiten, damit die Aufgabenliste aktualisiert wird.
+    // SvelteKit wird die load-Funktion der Seite erneut ausführen.
+    throw redirect(303, `/projekte/${projektId}`);
   }
-};
+
+}
