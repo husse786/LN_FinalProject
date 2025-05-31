@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { DB_URI } from '$env/static/private'; // Importiert Connectionstring
 
 // Erstellen neue MongoClient-Instanz mit der Connectionstring
@@ -83,12 +83,44 @@ async function addProjekt(projektDaten) {
         throw new Error('Konnte neues Projekt nicht in der Datenbank speichern.');
     }
 }
+/**
+ * Ruft ein einzelnes Projekt anhand seiner ID aus der Datenbank ab.
+ * @param {string} id - Die ID des gesuchten Projekts (als String).
+ * @returns {Promise<object|null>} 
+ */
+async function getProjektById(id) {
+  if (!id) {
+    console.warn('getProjektById aufgerufen ohne ID.');
+    return null;
+  }
+  try {
+    const datenbank = await connectToDatabase();
+    // Die String-ID muss in ein MongoDB ObjectId-Objekt umgewandelt werden für die Abfrage.
+    const projekt = await datenbank.collection('projekte').findOne({ _id: new ObjectId(id) });
+
+    if (projekt) {
+      // Konvertiere _id zu String für einfachere Handhabung in SvelteKit
+      return {
+        ...projekt,
+        _id: projekt._id.toString()
+      };
+    } else {
+      console.warn(`Kein Projekt gefunden mit ID: ${id}`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Fehler beim Abrufen des Projekts mit ID ${id}:`, error);
+    // Fehler Log and Null
+    // Ein 'throw new Error(...)' würde in der load-Funktion den error-Prop setzen.
+    throw new Error(`Konnte Projekt mit ID ${id} nicht aus der Datenbank laden.`);
+  }
+}
 
 // Objekt, das alle unsere Datenzugriffsfunktionen bündelt
 const dbExportObjekt = {
     getAlleProjekte: getAlleProjekte,
     addProjekt: addProjekt,
-    // getProjektById: getProjektById, // Später hinzufügen
+    getProjektById: getProjektById,
 };
 
 export default dbExportObjekt; // Default Export dieses Objekts
