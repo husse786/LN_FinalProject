@@ -1,9 +1,11 @@
 <script>
+
+    import ProjektKarte from '$lib/components/ProjektKarte.svelte'; // Import der Komponente
+
+    // Props von SvelteKit (data von load) über die $props() Rune empfangen
     let { data } = $props();
 
-    // Daten aus der 'data'-Prop ( via $props() erhalten)
-    // für die Verwendung im Template vorbereiten.
-    // Das optionale Chaining (data?.error) ist eine gute Absicherung.
+    // Daten aus der 'data'-Prop mit Svelte 5 Runes ($derived) vorbereiten
     let anzeigeFehler = $derived(data?.error);
     let projekteListe = $derived(data?.projekte || []);
     let hatProjekte = $derived(projekteListe.length > 0);
@@ -28,27 +30,7 @@
         <div class="row">
             {#each projekteListe as projekt (projekt._id)}
                 <div class="col-md-4 mb-3">
-                    <div class="card h-100">
-                        {#if projekt.projektIcon}
-                            <img 
-                                src="/images/projekt-icons/{projekt.projektIcon}" 
-                                class="card-img-top p-3" 
-                                alt="Projekt Icon {projekt.name}" 
-                                style="max-height: 150px; object-fit: contain; border-bottom: 1px solid #eee;"
-                            />
-                        {/if}
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">{projekt.name}</h5>
-                            <p class="card-text">
-                                Status: <span class="badge bg-secondary">{projekt.status || "N/A"}</span><br />
-                                Priorität: {projekt.prioritaet || "N/A"}<br />
-                                Geplantes Ende: {projekt.endDatumGeplant ? new Date(projekt.endDatumGeplant).toLocaleDateString('de-CH') : "N/A"}
-                            </p>
-                            <div class="mt-auto">
-                                <a href="/projekte/{projekt._id}" class="btn btn-primary btn-sm">Details</a>
-                            </div>
-                        </div>
-                    </div>
+                    <ProjektKarte projekt={projekt} />
                 </div>
             {/each}
         </div>
@@ -70,7 +52,6 @@
 </div>
 
 <style>
-    .card-title {
-        margin-bottom: 0.75rem;
-    }
+    /* Die Styles für .card-title etc. sind jetzt in ProjektKarte.svelte,
+       hier könnten allgemeine Styles für die Übersichtsseite stehen, falls benötigt. */
 </style>

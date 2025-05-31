@@ -1,11 +1,7 @@
 <script>
-    // Import Ihrer Navigationsleiste.svelte Komponente
+    //@runes
     import Navigationsleiste from "$lib/components/Navigationsleiste.svelte";
-    // Import Ihrer globalen Stile
     import "../app.css";
-
-    // Den 'children'-Prop (den Inhalt der aktuellen Seite) über $props() im Runes-Mode erhalten.
-    // $props() ist eine Rune und muss nicht importiert werden.
     let { children } = $props();
 </script>
 
@@ -20,8 +16,8 @@
 </footer>
 
 <style>
-    /* Globale Layout-Stylings, falls spezifisch für dieses Layout benötigt */
-    main {
-        min-height: 70vh; /* Stellt sicher, dass der Footer nach unten gedrückt wird */
-    }
-</style>
+        main {
+            min-height: 100vh;
+            padding-top: 80px; 
+        }
+    </style>
