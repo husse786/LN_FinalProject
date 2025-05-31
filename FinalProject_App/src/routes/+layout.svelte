@@ -1,24 +1,27 @@
 <script>
-    // Hier könnten später globale Skripte oder Importe für die Navigation stehen
-    // z.B. Import Navigationsleiste.svelte Komponente
+    // Import Ihrer Navigationsleiste.svelte Komponente
     import Navigationsleiste from "$lib/components/Navigationsleiste.svelte";
-    import "../app.css"; // Globale Stile importieren (falls Sie app.css verwenden)
+    // Import Ihrer globalen Stile
+    import "../app.css";
+
+    // Den 'children'-Prop (den Inhalt der aktuellen Seite) über $props() im Runes-Mode erhalten.
+    // $props() ist eine Rune und muss nicht importiert werden.
+    let { children } = $props();
 </script>
 
 <Navigationsleiste />
 
 <main class="container mt-3">
-    <slot />
+    {@render children()}
 </main>
 
 <footer class="text-center mt-5 mb-3">
     <p>&copy; {new Date().getFullYear()} Mein ProjektTracker</p>
 </footer>
-ƒ
 
 <style>
-    /* Globale Layout-Stylings */
+    /* Globale Layout-Stylings, falls spezifisch für dieses Layout benötigt */
     main {
-        min-height: 70vh; /*Footer nach unten zu drücken */
+        min-height: 70vh; /* Stellt sicher, dass der Footer nach unten gedrückt wird */
     }
 </style>
