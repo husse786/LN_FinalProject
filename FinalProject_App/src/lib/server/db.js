@@ -89,31 +89,31 @@ async function addProjekt(projektDaten) {
  * @returns {Promise<object|null>} 
  */
 async function getProjektById(id) {
-  if (!id) {
-    console.warn('getProjektById aufgerufen ohne ID.');
-    return null;
-  }
-  try {
-    const datenbank = await connectToDatabase();
-    // Die String-ID muss in ein MongoDB ObjectId-Objekt umgewandelt werden für die Abfrage.
-    const projekt = await datenbank.collection('projekte').findOne({ _id: new ObjectId(id) });
-
-    if (projekt) {
-      // Konvertiere _id zu String für einfachere Handhabung in SvelteKit
-      return {
-        ...projekt,
-        _id: projekt._id.toString()
-      };
-    } else {
-      console.warn(`Kein Projekt gefunden mit ID: ${id}`);
-      return null;
+    if (!id) {
+        console.warn('getProjektById aufgerufen ohne ID.');
+        return null;
     }
-  } catch (error) {
-    console.error(`Fehler beim Abrufen des Projekts mit ID ${id}:`, error);
-    // Fehler Log and Null
-    // Ein 'throw new Error(...)' würde in der load-Funktion den error-Prop setzen.
-    throw new Error(`Konnte Projekt mit ID ${id} nicht aus der Datenbank laden.`);
-  }
+    try {
+        const datenbank = await connectToDatabase();
+        // Die String-ID muss in ein MongoDB ObjectId-Objekt umgewandelt werden für die Abfrage.
+        const projekt = await datenbank.collection('projekte').findOne({ _id: new ObjectId(id) });
+
+        if (projekt) {
+            // Konvertiere _id zu String für einfachere Handhabung in SvelteKit
+            return {
+                ...projekt,
+                _id: projekt._id.toString()
+            };
+        } else {
+            console.warn(`Kein Projekt gefunden mit ID: ${id}`);
+            return null;
+        }
+    } catch (error) {
+        console.error(`Fehler beim Abrufen des Projekts mit ID ${id}:`, error);
+        // Fehler Log and Null
+        // Ein 'throw new Error(...)' würde in der load-Funktion den error-Prop setzen.
+        throw new Error(`Konnte Projekt mit ID ${id} nicht aus der Datenbank laden.`);
+    }
 }
 
 /**
@@ -123,40 +123,70 @@ async function getProjektById(id) {
  * @returns {Promise<import('mongodb').UpdateResult>} Ein Promise, das das Ergebnis der Update-Operation zurückgibt.
  */
 async function updateProjekt(id, projektUpdateDaten) {
-  if (!id) {
-    console.warn('updateProjekt aufgerufen ohne ID.');
-    throw new Error('Projekt-ID für Update fehlt.');
-  }
-  try {
-    const datenbank = await connectToDatabase();
-
-    // Das 'zuletztBearbeitetAm'-Datum setzen/aktualisieren
-    const datenMitTimestamp = {
-      ...projektUpdateDaten,
-      zuletztBearbeitetAm: new Date()
-    };
-
-    // Felder, die nicht aktualisiert werden sollen (z.B. erstelltAm), sollten nicht in projektUpdateDaten sein
-
-    const result = await datenbank.collection('projekte').updateOne(
-      { _id: new ObjectId(id) },      // Filter: Welches Dokument soll aktualisiert werden?
-      { $set: datenMitTimestamp }
-    );
-
-    if (result.matchedCount === 0) {
-      console.warn(`Kein Projekt mit ID ${id} für Update gefunden.`);
-      // Entweder null zurückgeben oder einen Fehler werfen, den die Action behandeln kann
-      throw new Error(`Projekt mit ID ${id} nicht gefunden für Update.`);
+    if (!id) {
+        console.warn('updateProjekt aufgerufen ohne ID.');
+        throw new Error('Projekt-ID für Update fehlt.');
     }
+    try {
+        const datenbank = await connectToDatabase();
 
-    console.log(`Projekt mit ID ${id} erfolgreich aktualisiert. Modifizierte Dokumente: ${result.modifiedCount}`);
-    return result;
-  } catch (error) {
-    console.error(`Fehler beim Aktualisieren des Projekts mit ID ${id}:`, error);
-    // Den ursprünglichen Fehler weiterwerfen oder einen spezifischeren Fehler erstellen
-    if (error.message.startsWith('Projekt mit ID')) throw error; // Eigenen Fehler weiterleiten
-    throw new Error(`Konnte Projekt mit ID ${id} nicht in der Datenbank aktualisieren.`);
-  }
+        // Das 'zuletztBearbeitetAm'-Datum setzen/aktualisieren
+        const datenMitTimestamp = {
+            ...projektUpdateDaten,
+            zuletztBearbeitetAm: new Date()
+        };
+
+        // Felder, die nicht aktualisiert werden sollen (z.B. erstelltAm), sollten nicht in projektUpdateDaten sein
+
+        const result = await datenbank.collection('projekte').updateOne(
+            { _id: new ObjectId(id) },      // Filter: Welches Dokument soll aktualisiert werden?
+            { $set: datenMitTimestamp }
+        );
+
+        if (result.matchedCount === 0) {
+            console.warn(`Kein Projekt mit ID ${id} für Update gefunden.`);
+            // Entweder null zurückgeben oder einen Fehler werfen, den die Action behandeln kann
+            throw new Error(`Projekt mit ID ${id} nicht gefunden für Update.`);
+        }
+
+        console.log(`Projekt mit ID ${id} erfolgreich aktualisiert. Modifizierte Dokumente: ${result.modifiedCount}`);
+        return result;
+    } catch (error) {
+        console.error(`Fehler beim Aktualisieren des Projekts mit ID ${id}:`, error);
+        // Den ursprünglichen Fehler weiterwerfen oder einen spezifischeren Fehler erstellen
+        if (error.message.startsWith('Projekt mit ID')) throw error; // Eigenen Fehler weiterleiten
+        throw new Error(`Konnte Projekt mit ID ${id} nicht in der Datenbank aktualisieren.`);
+    }
+}
+
+/**
+ * Löscht ein Projekt anhand seiner ID aus der Datenbank.
+ * @param {string} id - Die ID des zu löschenden Projekts (als String).
+ * @returns {Promise<import('mongodb').DeleteResult>} Ein Promise, das das Ergebnis der Löschoperation zurückgibt.
+ */
+async function deleteProjekt(id) {
+    if (!id) {
+        console.warn('deleteProjekt aufgerufen ohne ID.');
+        throw new Error('Projekt-ID für Löschvorgang fehlt.');
+    }
+    try {
+        const datenbank = await connectToDatabase();
+        const result = await datenbank.collection('projekte').deleteOne({ _id: new ObjectId(id) });
+
+        if (result.deletedCount === 0) {
+            console.warn(`Kein Projekt mit ID ${id} zum Löschen gefunden.`);
+            // Es könnte sinnvoll sein, hier einen Fehler zu werfen,
+            // falls erwartet wird, dass immer ein Dokument gelöscht wird.
+            // Für den Moment geben wir das Ergebnis einfach zurück.
+            // Alternativ: throw new Error(`Projekt mit ID ${id} nicht gefunden zum Löschen.`);
+        } else {
+            console.log(`Projekt mit ID ${id} erfolgreich gelöscht.`);
+        }
+        return result; // Enthält { acknowledged: true, deletedCount: 1 } oder 0
+    } catch (error) {
+        console.error(`Fehler beim Löschen des Projekts mit ID ${id}:`, error);
+        throw new Error(`Konnte Projekt mit ID ${id} nicht aus der Datenbank löschen.`);
+    }
 }
 
 
@@ -166,6 +196,7 @@ const dbExportObjekt = {
     addProjekt: addProjekt,
     getProjektById: getProjektById,
     updateProjekt: updateProjekt,
+    deleteProjekt: deleteProjekt,
 };
 
 export default dbExportObjekt; // Default Export dieses Objekts
