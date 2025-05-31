@@ -1,7 +1,13 @@
 <script>
-    //@runes
+    //@runes // Um den Runes-Modus explizit für diese Datei zu deklarieren
+
+    // Import Ihrer Navigationsleiste.svelte Komponente
     import Navigationsleiste from "$lib/components/Navigationsleiste.svelte";
-    import "../app.css";
+    // Import Ihrer globalen Stile
+    import "../app.css"; // Stellt sicher, dass app.css geladen wird
+
+    // Den 'children'-Prop (den Inhalt der aktuellen Seite) über $props() im Runes-Mode erhalten.
+    // $props() ist eine Rune und muss nicht importiert werden.
     let { children } = $props();
 </script>
 
@@ -16,8 +22,13 @@
 </footer>
 
 <style>
-        main {
-            min-height: 100vh;
-            padding-top: 80px; 
-        }
-    </style>
+    main {
+        min-height: 70vh; /* Stellt sicher, dass der Footer bei wenig Inhalt unten bleibt */
+        /* WICHTIG: Platz für die fixed-top Navbar schaffen.
+           Passen Sie diesen Wert ggf. an die tatsächliche Höhe Ihrer Navigationsleiste an.
+           Der Wert von 80px ist eine Schätzung. */
+        padding-top: 80px; 
+    }
+
+    /* Sie können hier weitere globale Styles für das Layout definieren, falls nötig */
+</style>
