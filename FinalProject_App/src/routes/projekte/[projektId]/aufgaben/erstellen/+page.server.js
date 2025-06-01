@@ -1,7 +1,7 @@
 // src/routes/projekte/[projektId]/aufgaben/erstellen/+page.server.js
 
 import db from '$lib/server/db.js';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail, redirect, error} from '@sveltejs/kit';
 import { ObjectId } from 'mongodb'; // Importieren, falls später die projektId hier validieren/umwandeln werden soll
 
 /** @type {import('./$types').PageServerLoad} */

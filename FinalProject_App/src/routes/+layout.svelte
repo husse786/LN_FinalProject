@@ -1,8 +1,8 @@
 <script>
 
-    // Import Ihrer Navigationsleiste.svelte Komponente
+    // Import der Navigationsleiste Komponente
     import Navigationsleiste from "$lib/components/Navigationsleiste.svelte";
-    // Import Ihrer globalen Stile
+    // Import der globalen Stile
     import "../app.css"; // Stellt sicher, dass app.css geladen wird
 
     // Den 'children'-Prop (den Inhalt der aktuellen Seite) erhalten.

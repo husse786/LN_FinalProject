@@ -52,6 +52,5 @@
 </div>
 
 <style>
-    /* Die Styles für .card-title etc. sind jetzt in ProjektKarte.svelte,
-       hier könnten allgemeine Styles für die Übersichtsseite stehen, falls benötigt. */
+    
 </style>
