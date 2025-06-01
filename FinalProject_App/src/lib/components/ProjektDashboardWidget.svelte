@@ -1,6 +1,4 @@
 <script>
-    //@runes // Runes-Modus explizit deklarieren
-
     // Props mit der $props() Rune empfangen
     // Die erwartete Prop 'projektStatistiken' wird aus dem $props()-Objekt destrukturiert.
     const { projektStatistiken } = $props();
